@@ -32,3 +32,10 @@ jobs:
         env:
           GOOGLE_JSON: ${{ secrets.GOOGLE_JSON }}
           SHEET_ID: ${{ secrets.SHEET_ID }}
+
+      - name: Upload Debug Screenshot
+        if: always() # Luôn chạy bước này kể cả khi bot lỗi để mình còn debug
+        uses: actions/checkout@v4 # Đảm bảo dùng bản mới nhất
+        with:
+          name: debug-screenshot
+          path: debug.png
