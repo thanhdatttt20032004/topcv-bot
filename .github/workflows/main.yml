@@ -2,12 +2,13 @@ name: TopCV Daily Bot
 
 on:
   schedule:
-    - cron: '0 1 * * *' # Chạy lúc 8:00 AM giờ Việt Nam (1:00 AM UTC)
-  workflow_dispatch: # Nút bấm để ông có thể chạy thử bất cứ lúc nào trên web
+    # Chạy vào 01:00 UTC, tức là 08:00 sáng giờ Việt Nam (GMT+7)
+    - cron: '0 1 * * *'
+  workflow_dispatch: # Cho phép ông bấm nút chạy thủ công để test
 
 jobs:
   scrape:
-    runs-on: ubuntu-latest # Chạy trên máy ảo Linux của GitHub
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -16,14 +17,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install
 
+      # Bước quan trọng nhất: Cài đặt trình duyệt Chrome cho Puppeteer
+      - name: Install Chrome
+        run: npx puppeteer browsers install chrome
+
       - name: Run Bot
+        run: node index.js
         env:
-          # Đây là nơi GitHub lấy mã bảo mật ông đã dán trong Settings
           GOOGLE_JSON: ${{ secrets.GOOGLE_JSON }}
           SHEET_ID: ${{ secrets.SHEET_ID }}
-        run: node index.js
