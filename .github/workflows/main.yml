@@ -2,9 +2,8 @@ name: TopCV Daily Bot
 
 on:
   schedule:
-    # Chạy vào 01:00 UTC, tức là 08:00 sáng giờ Việt Nam (GMT+7)
-    - cron: '0 1 * * *'
-  workflow_dispatch: # Cho phép ông bấm nút chạy thủ công để test
+    - cron: '0 1 * * *' # 08:00 sáng giờ VN
+  workflow_dispatch:
 
 jobs:
   scrape:
@@ -22,9 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Bước quan trọng nhất: Cài đặt trình duyệt Chrome cho Puppeteer
+      # Bước đã fix: Thêm quyền thực thi và dùng đúng lệnh npx
       - name: Install Chrome
-        run: npx puppeteer browsers install chrome
+        run: |
+          chmod -R +x node_modules/.bin/
+          npx puppeteer browsers install chrome
 
       - name: Run Bot
         run: node index.js
