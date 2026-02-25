@@ -44,22 +44,25 @@ async function startBot() {
             timeout: 30000 
         });
 
-        console.log("4. Đang bóc tách dữ liệu...");
+console.log("4. Đang bóc tách dữ liệu...");
         const jobs = await page.evaluate(() => {
             const results = [];
-            // Tìm các thẻ chứa tiêu đề công việc (cấu trúc bền vững nhất của TopCV)
-            const titles = document.querySelectorAll('.job-title, h3.title, a.title');
+            // Chiến thuật "vét cạn": Tìm tất cả các link có chứa từ khóa tuyển dụng
+            const jobCards = document.querySelectorAll('a[href*="/viec-lam/"], .job-item-2, .box-job');
             
-            titles.forEach(el => {
-                const container = el.closest('div[class*="job"]') || el.parentElement.parentElement;
-                const company = container.querySelector('.company, .company-name')?.innerText.trim() || 'Farmers Market check';
-                const address = container.querySelector('.address, .location')?.innerText.trim() || 'Hồ Chí Minh';
+            jobCards.forEach(card => {
+                // Lấy tiêu đề từ thẻ a hoặc các thẻ tiêu đề bên trong
+                const title = card.innerText.split('\n')[0].trim();
                 
-                if (el.innerText.trim().length > 5) {
+                // Cố gắng tìm tên công ty ở các thẻ lân cận
+                const container = card.closest('div') || card.parentElement;
+                const company = container.innerText.split('\n')[1] || 'Farmers Market Check';
+
+                if (title.length > 10 && !results.some(r => r['Tiêu đề'] === title)) {
                     results.push({
-                        'Tiêu đề': el.innerText.trim(),
+                        'Tiêu đề': title,
                         'Công ty': company,
-                        'Địa điểm': address,
+                        'Địa điểm': 'Hồ Chí Minh/Toàn quốc',
                         'Ngày quét': new Date().toLocaleString('vi-VN')
                     });
                 }
