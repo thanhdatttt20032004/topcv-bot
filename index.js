@@ -5,6 +5,7 @@ const fs = require('fs');
 
 puppeteer.use(StealthPlugin());
 
+// Lấy ID Sheet từ biến môi trường
 const SPREADSHEET_ID = process.env.SHEET_ID || '11xM2ti18lBRsMy6horr55eSVRFAYDgM6EPFw1UOxy0Q';
 
 async function startBot() {
@@ -12,19 +13,16 @@ async function startBot() {
         console.log("1. Đang chuẩn bị xác thực Google Sheets...");
         let creds;
         
+        // Ưu tiên lấy từ GitHub Secrets, nếu không có thì lấy file local
         if (process.env.GOOGLE_JSON) {
             creds = JSON.parse(process.env.GOOGLE_JSON);
         } else {
-            // Kiểm tra file goog.json trên máy Đạt
-            if (!fs.existsSync('./goog.json')) {
-                throw new Error("Ông chưa có file goog.json trong thư mục dự án rồi!");
-            }
             creds = JSON.parse(fs.readFileSync('./goog.json', 'utf8'));
         }
 
         const doc = new GoogleSpreadsheet(SPREADSHEET_ID);
 
-        // Fix lỗi Invalid JWT Signature bằng cách xử lý ký tự xuống dòng
+        // Xử lý Private Key để tránh lỗi Invalid JWT Signature
         const privateKey = creds.private_key.replace(/\\n/g, '\n');
 
         await doc.useServiceAccountAuth({
@@ -48,38 +46,37 @@ async function startBot() {
         });
         const page = await browser.newPage();
         await page.setViewport({ width: 1920, height: 1080 });
+        
+        // Giả lập User Agent mới nhất
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
 
         console.log("3. Đang truy cập TopCV và chờ tải trang...");
         await page.goto('https://www.topcv.vn/tim-viec-lam-it-phan-mem-c10026', { 
-            waitUntil: 'networkidle2', 
-            timeout: 60000 
+            waitUntil: 'networkidle0', // Chờ cho đến khi không còn lưu lượng mạng
+            timeout: 90000 
         });
 
-        console.log("- Đang cuộn trang để kích hoạt nạp tin...");
+        // Chờ thêm 5 giây để đảm bảo các thành phần JavaScript đã render xong
+        console.log("- Đợi trang ổn định trong 5 giây...");
+        await new Promise(r => setTimeout(r, 5000));
+
+        console.log("- Đang cuộn trang kỹ để kích hoạt nạp tin...");
         await page.evaluate(async () => {
-            await new Promise((resolve) => {
-                let totalHeight = 0;
-                let distance = 400;
-                let timer = setInterval(() => {
-                    window.scrollBy(0, distance);
-                    totalHeight += distance;
-                    if(totalHeight >= 3000){
-                        clearInterval(timer);
-                        resolve();
-                    }
-                }, 200);
-            });
+            for (let i = 0; i < 10; i++) {
+                window.scrollBy(0, 600);
+                await new Promise(r => setTimeout(r, 600));
+            }
         });
 
         console.log("4. Đang bóc tách dữ liệu tin tuyển dụng...");
         const jobs = await page.evaluate(() => {
-            const items = document.querySelectorAll('.job-item-2, .job-item-search-result, .job-item, [class*="job-item"]');
+            // Bộ chọn Selector "Vét cạn" cho nhiều giao diện của TopCV
+            const items = document.querySelectorAll('.job-item-2, .job-item-search-result, .job-item, [class*="job-item"], .box-job');
             
             return Array.from(items).map(item => {
-                const titleEl = item.querySelector('h3 a, .title, .job-title, .title-job');
+                const titleEl = item.querySelector('h3 a, .title, .job-title, .title-job, a[target="_blank"]');
                 const companyEl = item.querySelector('.company, .company-name, .name-company, a[href*="/cong-ty/"]');
-                const addressEl = item.querySelector('.address, .location, .city, .label-content');
+                const addressEl = item.querySelector('.address, .location, .city, .label-content, .info-address');
 
                 return {
                     'Tiêu đề': titleEl ? titleEl.innerText.trim() : '',
@@ -87,7 +84,7 @@ async function startBot() {
                     'Địa điểm': addressEl ? addressEl.innerText.trim() : '',
                     'Ngày quét': new Date().toLocaleString('vi-VN')
                 };
-            }).filter(j => j['Tiêu đề'] && j['Tiêu đề'].length > 5);
+            }).filter(j => j['Tiêu đề'] && j['Tiêu đề'].length > 3);
         });
 
         if (jobs.length > 0) {
@@ -95,7 +92,7 @@ async function startBot() {
             await sheet.addRows(jobs);
             console.log("--- HOÀN THÀNH! DỮ LIỆU ĐÃ ĐƯỢC GHI VÀO SHEET ---");
         } else {
-            console.log("Cảnh báo: Không tìm thấy tin nào. Kiểm tra lại Selector.");
+            console.log("Cảnh báo: Không tìm thấy tin nào. Có thể do giao diện web thay đổi.");
         }
 
         await browser.close();
