@@ -24,45 +24,52 @@ async function startBot() {
         console.log("2. Khởi động trình duyệt...");
         browser = await puppeteer.launch({ 
             headless: "new",
-            args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+            args: [
+                '--no-sandbox', 
+                '--disable-setuid-sandbox',
+                '--disable-blink-features=AutomationControlled',
+                '--window-size=1920,1080'
+            ] 
         });
         const page = await browser.newPage();
-
-        // Tối ưu: Chặn tải ảnh và CSS để load cực nhanh
-        await page.setRequestInterception(true);
-        page.on('request', (req) => {
-            if(['image', 'stylesheet', 'font'].includes(req.resourceType())) {
-                req.abort();
-            } else {
-                req.continue();
-            }
-        });
+        await page.setViewport({ width: 1920, height: 1080 });
+        
+        // Giả lập như người dùng đang dùng Chrome thật trên Windows
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
 
         console.log("3. Truy cập TopCV...");
+        // Đợi lâu hơn một chút (60s) để trang load hết các script bảo mật
         await page.goto('https://www.topcv.vn/tim-viec-lam-it-phan-mem-c10026', { 
-            waitUntil: 'domcontentloaded', // Chỉ đợi HTML xong là quét luôn
-            timeout: 30000 
+            waitUntil: 'networkidle2', 
+            timeout: 60000 
         });
 
-console.log("4. Đang bóc tách dữ liệu...");
+        console.log("- Đợi 10 giây cho trang render xong xuôi...");
+        await new Promise(r => setTimeout(r, 10000));
+
+        console.log("- Cuộn trang để kích hoạt dữ liệu...");
+        await page.evaluate(async () => {
+            window.scrollBy(0, 1000);
+            await new Promise(r => setTimeout(r, 2000));
+        });
+
+        console.log("4. Đang bóc tách dữ liệu...");
         const jobs = await page.evaluate(() => {
             const results = [];
-            // Chiến thuật "vét cạn": Tìm tất cả các link có chứa từ khóa tuyển dụng
-            const jobCards = document.querySelectorAll('a[href*="/viec-lam/"], .job-item-2, .box-job');
+            // Tìm tất cả các link có chứa từ khóa tuyển dụng (cách bền vững nhất)
+            const links = document.querySelectorAll('a[href*="/viec-lam/"]');
             
-            jobCards.forEach(card => {
-                // Lấy tiêu đề từ thẻ a hoặc các thẻ tiêu đề bên trong
-                const title = card.innerText.split('\n')[0].trim();
-                
-                // Cố gắng tìm tên công ty ở các thẻ lân cận
-                const container = card.closest('div') || card.parentElement;
-                const company = container.innerText.split('\n')[1] || 'Farmers Market Check';
+            links.forEach(link => {
+                const title = link.innerText.trim();
+                // Tìm thẻ cha chứa tên công ty (thường nằm gần đó)
+                const container = link.closest('div[class*="job"]') || link.parentElement.parentElement;
+                const company = container.innerText.split('\n').find(t => t.length > 5 && t !== title) || "Farmers Market Check";
 
-                if (title.length > 10 && !results.some(r => r['Tiêu đề'] === title)) {
+                if (title.length > 15 && !results.some(r => r['Tiêu đề'] === title)) {
                     results.push({
                         'Tiêu đề': title,
                         'Công ty': company,
-                        'Địa điểm': 'Hồ Chí Minh/Toàn quốc',
+                        'Địa điểm': 'Hồ Chí Minh',
                         'Ngày quét': new Date().toLocaleString('vi-VN')
                     });
                 }
@@ -72,11 +79,12 @@ console.log("4. Đang bóc tách dữ liệu...");
 
         if (jobs.length > 0) {
             console.log(`5. THÀNH CÔNG! Tìm thấy ${jobs.length} tin. Đang lưu...`);
-            await sheet.addRows(jobs);
+            // Chỉ lấy 30 tin đầu cho nhẹ
+            await sheet.addRows(jobs.slice(0, 30));
             console.log("--- DỮ LIỆU ĐÃ VỀ SHEET ---");
         } else {
-            console.log("Cảnh báo: Không tìm thấy tin. Đang chụp ảnh debug...");
-            await page.screenshot({ path: 'debug.png', fullPage: true });
+            console.log("Cảnh báo: Vẫn không thấy tin. Chụp ảnh debug...");
+            await page.screenshot({ path: 'debug.png' });
         }
 
     } catch (error) {
