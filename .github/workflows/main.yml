@@ -1,0 +1,29 @@
+name: TopCV Daily Bot
+
+on:
+  schedule:
+    - cron: '0 1 * * *' # Chạy lúc 8:00 AM giờ Việt Nam (1:00 AM UTC)
+  workflow_dispatch: # Nút bấm để ông có thể chạy thử bất cứ lúc nào trên web
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest # Chạy trên máy ảo Linux của GitHub
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Bot
+        env:
+          # Đây là nơi GitHub lấy mã bảo mật ông đã dán trong Settings
+          GOOGLE_JSON: ${{ secrets.GOOGLE_JSON }}
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+        run: node index.js
