@@ -2,7 +2,7 @@
   "dependencies": {
     "firebase": "^11.4.0",
     "google-auth-library": "^10.6.1",
-    "google-spreadsheet": "^5.2.0",
+    "google-spreadsheet": "^3.3.0",
     "puppeteer": "^24.37.5",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"

@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "farmers-market-bot",
+  "private_key_id": "1a0286e3afeddaa1c31c2ea1f26be27a0f3f3af5",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDRk6a34IE66K9k\nLhlbN5eKi9Gxnt2RPGAoR+pmJeB23SBgi8SQjJswZzs6zeWKmIM0QygxDbW9t2BH\n6D6ZOSJZmt4f51jEd2BFge1nO+fsJK0tyh6xcc7HGvbT3GOcRlM2xr1OVwvXFNH4\n4j0NRvFqQfH1ht+M1At3LHcJ3LXQSifbrrEJi6U/UHG0qfD+KW9DCoZgyC3DtVis\nslB5MD476bZe/jsHcEmNvYOI5iCAuKKuMjWXkYXF8qBQperO67biO18zhiWw7GX+\ncD/KJCFS6az1FrX902kY+hERN0dPSrxONtFSx/0ZAhNeOV/JhAQ0DkYY8BtgOxhO\nuRQQkbhjAgMBAAECggEABKm5L7srikDWHNpXucCtZamXE1F6aDpZ1gZE8AaPYtBT\nDELf2erUTcnmNqM7zw8gpYo0UTnBsu8VvH6C3LbkOEPVWwwIh2qJNlKzPQpHWT42\n/4n75S0n5s8x8bnOxOcy/8jWj8Z+XsfkT299Ne0/qYJpHJzmdBmIXcZGqcNYOkJP\nJ3ISOE+7ZrEiI+bXuzmn4NGOfs7HaW2hHeVqBUd/Gq8cgdB8iESX5WuctIeg8kVu\n7+4Q/4Qasu/gNok2tPKEDW808FZVJMu7k3y7LvHE6YspTQ4YHufrF0hz+d9fHBNr\nHzHa5DtBno5lNTmwsiyyoy7NjHOV62zd6GuBvV0+tQKBgQDq1uOSXdH7Pjstnlk4\n1U8yKlq5jrSsCMR5PI3ntFa7/nxCWhzdQVWKkn9kk9YdLdBLBRg3NF8D1v4xXerl\nmZ/XI0hAkC7a2xd2KnKmHmUXY9PdbUA0IHXGfxe322iQTbj9vouibUtDtlBRbSUH\nVVrvHxNzNMLGmhFcYbUE0IURhQKBgQDkdgVvp7mY9W5sQXLBVd/8HQdZ0kqYT+2W\ndTpmA4XJIru//gjWG1j0Sqd3RQ+FDZxQ++D6Rsvw6UPg52trH5rCo/SL45Qg0u1r\ny6BvJ2FQOKIVXd4VitgmPOp3d4Ym6FAFFp9CT2nZG4fAbaFHIEKSbPKAn+sFLwL2\nxuAKiFrSxwKBgF0pmKhFHftM6c8kJYMdZEijctBwI46n/8GU2zrTWSFFSOhNtWu0\n8omBqpYs6+ExfpN0VvH3jcYJMVhGSNyDAF0puw0Z5eyexAT1u/vYzQPlb3RFVhYX\n1oFDhBZFLYspujy3rc9nCle3aM+Uu/7XxrZcHqwyfx6omkCK5nQdgNy9AoGAMRxN\nvtrHQuI/gnXvPTBAnel/kwdpkaRc5mL80sEfGUWmJndtXtkyHhGOPk1SML/kQmRi\n0Go3nOoH9WjJ5pU8p2qnPwsE5Kly8CEts7c7bAtAjGdJPkhCfrXJkTTYWbTGvtFG\nGvMHRextGih26ts8dE2HM68szkh00qedsaXuIDECgYB76+unWkENkTinhHJga+Zb\nrYjKack+6KTHzH1aEm60owkdGiq4+tiXzzgUIC+ypXvn7T4pGyvnf0iSq7tw1gnj\nGLXOzrnc8RC3/arGlaJjAt/8jyQtO4LoHEkkWZzetqf19SpOgklvU05Xz/+1tAjm\n6v+A8kDAZWUTmXXMohhHOQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "farmers-market-bot@farmers-market-bot.iam.gserviceaccount.com",
+  "client_id": "108330285612189043936",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/farmers-market-bot%40farmers-market-bot.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
